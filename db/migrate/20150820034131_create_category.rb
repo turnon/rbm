@@ -5,7 +5,7 @@ class CreateCategory < ActiveRecord::Migration
       t.datetime :add
       t.datetime :last_modified
       t.belongs_to :category, index: true
-      t.belongs_to :file, index: true
+      t.belongs_to :bookmark_file, index: true
     end
   end
 end
