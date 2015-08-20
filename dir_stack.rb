@@ -11,7 +11,7 @@ class DirStack
   alias_method :getin, :<< 
 
   def cur
-    @st[-1] || 'root'
+    @st[-1] || nil
   end
 
   def getout
