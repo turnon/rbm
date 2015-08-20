@@ -1,5 +1,9 @@
 require_relative 'string_extend'
 require_relative 'dir_stack'
+require_relative 'sqlite_conn'
+require_relative 'bookmark_file'
+require_relative 'category'
+require_relative 'link'
 
 st = DirStack.new
 
