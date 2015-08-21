@@ -1,3 +1,5 @@
+#!/usr/bin/env ruby
+
 require_relative 'sqlite_conn'
 require_relative 'bookmark_file'
 require_relative 'category'
