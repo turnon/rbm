@@ -21,9 +21,9 @@ while not ARGV.empty?
         l.parse line
         puts "#{bmf.current_category ? bmf.current_category.name : 'root'} #{l.name} #{l.href} #{l.add}"
       elsif Category.match? line
-        c = Category.new
+        cur_c = bmf.current_category
+        c = (cur_c || bmf).categories.build
         c.parse line
-        puts "#{bmf.current_category ? bmf.current_category.name : 'root'} #{c.name} #{c.add} #{c.last_modified}"
         bmf.getin c
       elsif Category.match_ending? line
         bmf.getout
