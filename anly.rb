@@ -17,9 +17,8 @@ while not ARGV.empty?
     while line = f.gets
       line.sub!(/^\s+/, '')
       if Link.match? line
-        l = Link.new
+        l = bmf.current_category.links.build
         l.parse line
-        puts "#{bmf.current_category ? bmf.current_category.name : 'root'} #{l.name} #{l.href} #{l.add}"
       elsif Category.match? line
         cur_c = bmf.current_category
         c = (cur_c || bmf).categories.build
