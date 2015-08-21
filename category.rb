@@ -18,8 +18,8 @@ class Category < ActiveRecord::Base
     md = /LAST_MODIFIED\=\"(\d+)\"/.match str
     self.last_modified = md ? Time.at(md[1].to_i) : nil    
     
-    md = /\"\>(.*)\<\/H/.match str
-    self.name = md ? md[1] : nil
+    md = /(\"|1)\>(.*)\<\/H/.match str
+    self.name = md ? md[2] : nil
   end
 
 end
