@@ -6,13 +6,7 @@ class Link < ActiveRecord::Base
   end
 
   def parse(str)
-    md = /ADD_DATE=\"(\d+)\"/.match str
-    self.add = Time.at( md ? md[1].to_i : 0)
-
-    md = /HREF\=\"(.*)\"\s+ADD/.match str
-    self.href = md ? md[1] : nil
-
-    md = /\"\>(.*)\<\/A/.match str
-    self.name = md ? md[1] : nil
+    md = /HREF\=\"(.*)\"\s+ADD_DATE\=\"(\d+)\".*\>(.*)\<\/A\>/.match str
+    self.href, self.add, self.name = md[1] , Time.at(md[2].to_i), md[3] if md
   end
 end
