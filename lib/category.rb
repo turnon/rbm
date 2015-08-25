@@ -1,6 +1,7 @@
 class Category < ActiveRecord::Base
   belongs_to :bookmark_file
   has_many :categories, dependent: :destroy
+  belongs_to :category
   has_many :links, dependent: :destroy
 
   def self.match?(str)
@@ -20,6 +21,18 @@ class Category < ActiveRecord::Base
     
     md = /(\"|1)\>(.*)\<\/H/.match str
     self.name = md ? md[2] : nil
+  end
+
+  alias_method :bmf, :bookmark_file
+
+  def bookmark_file
+    f = bmf
+    c = self
+    until f
+      c = c.category
+      f = c.bmf
+    end
+    f
   end
 
 end
