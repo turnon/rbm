@@ -26,13 +26,16 @@ class Category < ActiveRecord::Base
   alias_method :bmf, :bookmark_file
 
   def bookmark_file
-    f = bmf
-    c = self
-    until f
+    path[-1].bmf
+  end
+
+  def path
+    p = [].unshift (c = self)
+    until c.bmf
       c = c.category
-      f = c.bmf
+      p.unshift c
     end
-    f
+    p
   end
 
 end
