@@ -1,6 +1,7 @@
 class Category < ActiveRecord::Base
   belongs_to :bookmark_file
   has_many :categories, dependent: :destroy
+  belongs_to :category
   has_many :links, dependent: :destroy
 
   def self.match?(str)
@@ -20,6 +21,46 @@ class Category < ActiveRecord::Base
     
     md = /(\"|1)\>(.*)\<\/H/.match str
     self.name = md ? md[2] : nil
+  end
+
+  alias_method :bmf, :bookmark_file
+
+  def bookmark_file
+    path[-1].bmf
+  end
+
+  def path
+    p = [].unshift (c = self)
+    until c.bmf
+      c = c.category
+      p.unshift c
+    end
+    p
+  end
+
+  alias_method :cs, :categories
+
+  def categories(*opt)
+    opt[0] == :r ? categories_recurse : cs
+  end
+
+  def categories_recurse
+    cs = []
+    r = -> c { cs << c ; subcs = c.categories ; subcs.each &r unless subcs.empty? }
+    categories.each &r
+    cs
+  end
+
+  alias_method :ls, :links
+
+  def links(*opt)
+    opt[0] == :r ? links_recurse : ls
+  end
+
+  def links_recurse
+    arr = ls.to_a
+    categories.each { |c| arr.concat c.links(:r) }
+    arr
   end
 
 end
