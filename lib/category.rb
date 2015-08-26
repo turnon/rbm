@@ -51,4 +51,16 @@ class Category < ActiveRecord::Base
     cs
   end
 
+  alias_method :ls, :links
+
+  def links(*opt)
+    opt[0] == :r ? links_recurse : ls
+  end
+
+  def links_recurse
+    arr = ls.to_a
+    categories.each { |c| arr.concat c.links(:r) }
+    arr
+  end
+
 end
