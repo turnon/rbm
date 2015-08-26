@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
 
 require 'optparse'
+require 'erb'
 
 require_relative 'sqlite_conn'
 require_relative 'bookmark_file'
@@ -19,11 +20,15 @@ option_parser = OptionParser.new do |opts|
   opts.on("-d DB") do |db|
     options[:d] = db
   end
+  
+  opts.on("-o HTML") do |html|
+    options[:o] = html
+  end
 end
 
 option_parser.parse!
 
-# process
+# setup db file
 
 db_file = (
   if options.empty?
@@ -36,6 +41,8 @@ db_file = (
 )
 
 SqliteConn.establish db_file
+
+# if bookmark file given ...
 
 while not ARGV.empty?
 
@@ -67,9 +74,18 @@ while not ARGV.empty?
 
 end
 
+# after db linked and file processed
+
 if options[:i]
   require 'pry'
   pry
-  File.delete db_file unless options[:d]
 end
+
+if options[:o]
+  bmfl = BookmarkFile.all
+  temp_str = File.read(File.join(File.dirname(__FILE__), 'temp.html'))
+  puts ERB.new(temp_str).result
+end
+
+File.delete db_file if !options.empty? and !options[:d]
 

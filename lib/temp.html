@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <style>
+    </style>
+  </head>
+  <body>
+    <canvas id="myChart"></canvas>
+    <script src="http://cdn.bootcss.com/Chart.js/1.0.2/Chart.js"></script>
+    <script>
+      var labels = <%=bmfl[0].category.categories[0].categories(:r).map { |c| (c.path.map { |p| p.name }).join('/') }%>
+      var statistic = <%=bmfl[0].category.categories[0].categories(:r).map { |c| c.links.size }%>
+      var data = {
+          labels: labels ,
+          datasets: [
+              {
+                  label: "My First dataset",
+                  fillColor: "rgba(220,220,220,0.2)",
+                  strokeColor: "rgba(220,220,220,1)",
+                  pointColor: "rgba(220,220,220,1)",
+                  pointStrokeColor: "#fff",
+                  pointHighlightFill: "#fff",
+                  pointHighlightStroke: "rgba(220,220,220,1)",
+                  data: statistic
+              }
+          ]
+      };
+      var chart = document.getElementById("myChart");
+      var wd = labels.length * 20 / window.screen.width * 100;
+      chart.style.width = wd + '%';
+      if(wd < 100) chart.style.height = '500px';
+      var ctx = chart.getContext("2d");
+      var myNewChart = new Chart(ctx).Bar(data);
+    </script>
+  </body>
+</html>
