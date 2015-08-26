@@ -15,13 +15,25 @@ option_parser = OptionParser.new do |opts|
   opts.on("-i","--interactive") do
     options[:i] = true
   end
+
+  opts.on("-d DB") do |db|
+    options[:d] = db
+  end
 end
 
 option_parser.parse!
 
 # process
 
-db_file = options[:i] ? File.join(Dir.tmpdir, Dir::Tmpname.make_tmpname(['rbmsql','.sqlite3'], nil)) : ARGV.pop
+db_file = (
+  if options.empty?
+    ARGV.pop
+  elsif options[:d]
+    options[:d]
+  else
+    File.join(Dir.tmpdir, Dir::Tmpname.make_tmpname(['rbmsql','.sqlite3'], nil))
+  end
+)
 
 SqliteConn.establish db_file
 
@@ -58,6 +70,6 @@ end
 if options[:i]
   require 'pry'
   pry
-  File.delete db_file
+  File.delete db_file unless options[:d]
 end
 
