@@ -41,7 +41,7 @@ while not ARGV.empty?
         l.parse line
       elsif Category.match? line
         cur_c = bmf.current_category
-        c = (cur_c || bmf).categories.build
+        c = (cur_c && cur_c.categories.build || bmf.build_category )
         c.parse line
         bmf.getin c
       elsif Category.match_ending? line
