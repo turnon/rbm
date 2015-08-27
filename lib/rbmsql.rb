@@ -82,9 +82,10 @@ if options[:i]
 end
 
 if options[:o]
-  bmfl = BookmarkFile.all
   temp_str = File.read(File.join(File.dirname(__FILE__), 'temp.html'))
-  puts ERB.new(temp_str).result
+  File.open options[:o], 'w' do |f|
+    f.puts ERB.new(temp_str).result
+  end
 end
 
 File.delete db_file if !options.empty? and !options[:d]
