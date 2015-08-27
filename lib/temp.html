@@ -6,11 +6,18 @@
     </style>
   </head>
   <body>
+    <canvas id="filelinks"></canvas></br>
     <canvas id="myChart"></canvas>
     <script src="http://cdn.bootcss.com/Chart.js/1.0.2/Chart.js"></script>
     <script>
-      var labels = <%=bmfl[0].category.categories[0].categories(:r).map { |c| (c.path.map { |p| p.name }).join('/') }%>
-      var statistic = <%=bmfl[0].category.categories[0].categories(:r).map { |c| c.links.size }%>
+      function compute_width(h_scale_count){
+        return h_scale_count * 25 / window.screen.width * 100
+      }
+    </script>
+    <% bmfl = BookmarkFile.all.order(name: :asc)%>
+    <script>
+      var labels = <%=bmfl.map { |f| f.name}%>
+      var statistic = <%=bmfl.map { |f| f.category.links(:r).size } %>
       var data = {
           labels: labels ,
           datasets: [
@@ -26,8 +33,31 @@
               }
           ]
       };
+      var chart = document.getElementById("filelinks");
+      var wd = compute_width(labels.length)
+      chart.style.width = wd + '%';
+      if(wd < 100) chart.style.height = '500px';
+      var ctx = chart.getContext("2d");
+      var myNewChart = new Chart(ctx).Line(data, {bezierCurve: false});
+    </script>
+    <script>
+      var labels = <%=bmfl[-1].category.categories[0].categories(:r).map { |c| (c.path.map { |p| p.name }).join('/') }%>
+      var statistic = <%=bmfl[-1].category.categories[0].categories(:r).map { |c| c.links.size }%>
+      var data = {
+          labels: labels ,
+          datasets: [
+              {
+                  label: "My First dataset",
+                  fillColor: "rgba(220,220,220,0.5)",
+                  strokeColor: "rgba(220,220,220,0.8)",
+                  highlightFill: "rgba(220,220,220,0.75)",
+                  highlightStroke: "rgba(220,220,220,1)",
+                  data: statistic
+              }
+          ]
+      };
       var chart = document.getElementById("myChart");
-      var wd = labels.length * 20 / window.screen.width * 100;
+      var wd = compute_width(labels.length)
       chart.style.width = wd + '%';
       if(wd < 100) chart.style.height = '500px';
       var ctx = chart.getContext("2d");
