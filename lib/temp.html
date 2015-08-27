@@ -3,23 +3,86 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <style>
+      #main {
+        margin: auto;
+        text-align: center;
+      }
+      
+      nav {
+        margin: 20px 0 20px 0;
+        font-size: 2em;
+      }
+      
+      nav a{
+        text-decoration: none;
+      }
+    
+      nav a + a:before{
+        content: " / ";
+      }
     </style>
   </head>
   <body>
-    <canvas id="filelinks"></canvas></br>
-    <canvas id="myChart"></canvas>
+    <div id='main'>
+    
+      <div id='period'>
+        form: <select id='select-period-from'></select> to: <select id='select-period-to'></select> <input type='button' value='generate'/></br>
+      </div>
+      
+      <div id='categories'>
+        <select id='select-file'></select></br>
+        <canvas id="myChart"></canvas>
+      </div>
+      
+    </div>
+      
+    <script src="http://libs.baidu.com/jquery/2.0.0/jquery.min.js"></script>
     <script src="http://cdn.bootcss.com/Chart.js/1.0.2/Chart.js"></script>
+    
     <script>
+      /*
+       * basic setting
+       */
+      var h_scale_wd = 25;
+      var pointHitDetectionRadius = h_scale_wd / 2 * 0.9;
+      
       function compute_width(h_scale_count){
-        return h_scale_count * 25 / window.screen.width * 100
+        return h_scale_count * h_scale_wd / window.screen.width * 100
       }
+      
+      var $main = $('#main');
+      
+      // extend jQuery
+      (function($){
+        $.fn.extend({
+          addOpts : function(items_list){
+            var $that = this;
+            items_list.forEach(function(i){
+              $that.append('<option value ="' + i +'">' + i +'</option>');
+            });
+            return $that;            
+          }
+        });
+      })(jQuery);
+      
+      // init nav
+      (function($){
+        var $nav = $('<nav/>');
+        $('#main > div').each(function(){
+          $nav.append('<a href="#' + this.id +'">' + this.id +'</a>')
+        });
+        $main.prepend($nav);
+      })(jQuery);
+      
     </script>
+    
     <% bmfl = BookmarkFile.all.order(name: :asc)%>
+    
     <script>
-      var labels = <%=bmfl.map { |f| f.name}%>
+      var period_labels = <%=bmfl.map { |f| f.name}%>
       var statistic = <%=bmfl.map { |f| f.category.links(:r).size } %>
       var data = {
-          labels: labels ,
+          labels: period_labels ,
           datasets: [
               {
                   label: "My First dataset",
@@ -33,15 +96,36 @@
               }
           ]
       };
-      var chart = document.getElementById("filelinks");
-      var wd = compute_width(labels.length)
-      chart.style.width = wd + '%';
-      if(wd < 100) chart.style.height = '500px';
-      var ctx = chart.getContext("2d");
-      var myNewChart = new Chart(ctx).Line(data, {bezierCurve: false});
+      
+      $('#period canvas').remove();
+      var $chart = $('<canvas/>');
+      $('#period').append($chart);
+      var wd = compute_width(period_labels.length)
+      $chart.width(wd + '%');
+      if(wd < 100) $chart.height('500px');
+      var ctx = $chart[0].getContext("2d");
+      var myNewChart = new Chart(ctx).Line(data, {bezierCurve: false, pointHitDetectionRadius : pointHitDetectionRadius});
+      
+      $('#select-period-from').addOpts(period_labels);
+      $('#select-period-to').addOpts(period_labels.reverse());
+      period_labels.reverse();
+      
     </script>
     <script>
-      var labels = <%=bmfl[-1].category.categories[0].categories(:r).map { |c| (c.path.map { |p| p.name }).join('/') }%>
+      var categories_of_files = {
+        <% bmfl.each do |f| %>
+          <%= f.name %> : {
+            lbs : <%= f.category.categories[0].categories(:r).map { |c| (c.path.map { |p| p.name }).join(' / ') }%> ,
+            dt : <%= f.category.categories[0].categories(:r).map { |c| c.links.size }%>
+           },
+        <% end %>
+      };
+      
+      var k = Object.keys(categories_of_files);
+      k.reverse();
+      $('#select-file').addOpts(k);
+      
+      var labels = <%=bmfl[-1].category.categories[0].categories(:r).map { |c| (c.path.map { |p| p.name }).join(' / ') }%>
       var statistic = <%=bmfl[-1].category.categories[0].categories(:r).map { |c| c.links.size }%>
       var data = {
           labels: labels ,
@@ -56,11 +140,11 @@
               }
           ]
       };
-      var chart = document.getElementById("myChart");
+      var chart = $("#myChart");
       var wd = compute_width(labels.length)
-      chart.style.width = wd + '%';
-      if(wd < 100) chart.style.height = '500px';
-      var ctx = chart.getContext("2d");
+      chart.width(wd + '%');
+      if(wd < 100) chart.height('500px');
+      var ctx = chart[0].getContext("2d");
       var myNewChart = new Chart(ctx).Bar(data);
     </script>
   </body>
