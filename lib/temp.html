@@ -31,7 +31,10 @@
       
       <div id='categories'>
         <select id='select-file'></select></br>
-        <canvas id="myChart"></canvas>
+      </div>
+      
+      <div id='months'>
+         <select id='select-year'></select></br>
       </div>
       
     </div>
@@ -111,6 +114,7 @@
       period_labels.reverse();
       
     </script>
+    
     <script>
       var categories_of_files = {
         <% bmfl.each do |f| %>
@@ -140,12 +144,61 @@
               }
           ]
       };
-      var chart = $("#myChart");
-      var wd = compute_width(labels.length)
-      chart.width(wd + '%');
-      if(wd < 100) chart.height('500px');
-      var ctx = chart[0].getContext("2d");
+      
+
+      var $chart = $('<canvas/>');
+      $('#categories').append($chart);
+      var wd = compute_width(labels.length);
+      $chart.width(wd + '%');
+      if(wd < 100) $chart.height('500px');
+      var ctx = $chart[0].getContext("2d");
       var myNewChart = new Chart(ctx).Bar(data);
+      
+    </script>
+    
+    <script>      
+      
+      
+      <% months_hash = Hash.new(0) %>
+      <% months_arr = bmfl[-1].category.links(:r).map { |l| l.add.year.to_s + '/' + l.add.month.to_s.sub(/^(\d)$/,'0\1') } %>
+      <% months_arr.each { |m| months_hash[m] = months_hash[m] + 1 } %>
+      <% months_sort_arr = months_hash.sort %>
+      
+      var labels = <%= months_sort_arr.map { |e| e[0] } %>;
+      var statistic = <%= months_sort_arr.map { |e| e[1] } %>;
+      
+      var select_m = {};      
+      labels.forEach(function(e){
+        select_m[e.replace(/\/.*$/,'')] = null;
+      });
+      
+      var k = Object.keys(select_m);
+      k.reverse();
+      $('#select-year').addOpts(k);      
+      
+      var data = {
+          labels: labels ,
+          datasets: [
+              {
+                  label: "My First dataset",
+                  fillColor: "rgba(220,220,220,0.5)",
+                  strokeColor: "rgba(220,220,220,0.8)",
+                  highlightFill: "rgba(220,220,220,0.75)",
+                  highlightStroke: "rgba(220,220,220,1)",
+                  data: statistic
+              }
+          ]
+      };
+      
+      
+      var $chart = $('<canvas/>');
+      $('#months').append($chart);
+      var wd = compute_width(labels.length);
+      $chart.width(wd + '%');
+      if(wd < 100) $chart.height('500px');
+      var ctx = $chart[0].getContext("2d");
+      var myNewChart = new Chart(ctx).Bar(data);
+      
     </script>
   </body>
 </html>
