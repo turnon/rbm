@@ -3,34 +3,77 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <style>
+      html, body {
+        margin: 0;
+        padding: 0;
+        text-align: center;
+      }
+
       #main {
         margin: auto;
-        text-align: center;
       }
       
       nav {
-        margin: 20px 0 20px 0;
+        padding: 20px 0 20px 0;
         font-size: 2em;
+        color: white;
+        background-color: black ;
       }
-      
-      nav a{
+
+      a {
         text-decoration: none;
       }
-    
-      nav a + a:before{
+
+      a:visited {
+        color: white;
+      }
+
+      nav a + a:before {
         content: " / ";
       }
+
+      #main > div {
+        margin-bottom: 50px;
+      }
+
+      #main select {
+        margin: 50px 0 50px 0;
+      }
+
+      #main > div:nth-child(odd) {
+        background-color: WhiteSmoke ;
+      }
+
+      footer {
+         height: 200px;
+      }
+
+      #backtop {
+          position: fixed;
+          height: 25px;
+          background-color: DimGray ;
+          bottom: 0px;
+          left: 0px;
+          right: 0px;
+          margin-bottom: 0px;
+          color: white;
+      }
+
+      #backtop a {
+        display: block;
+      }
+
     </style>
   </head>
   <body>
     <div id='main'>
     
       <div id='period'>
-        form: <select id='select-period-from'></select> to: <select id='select-period-to'></select> <input type='button' value='generate'/></br>
+        period form: <select id='select-period-from'></select> to: <select id='select-period-to'></select> <input type='button' value='generate'/></br>
       </div>
       
       <div id='categories'>
-        <select id='select-file'></select></br>
+        file: <select id='select-file'></select></br>
       </div>
       
       <div id='months'>
@@ -38,7 +81,9 @@
       </div>
       
     </div>
-      
+    <footer></footer>
+    <div id='backtop'><a href='#'>back to top</a></div>
+
     <script src="http://libs.baidu.com/jquery/2.0.0/jquery.min.js"></script>
     <script src="http://cdn.bootcss.com/Chart.js/1.0.2/Chart.js"></script>
     
@@ -56,19 +101,19 @@
       var $main = $('#main');
 
       var line_config = {
-        fillColor: "rgba(220,220,220,0.2)",
-        strokeColor: "rgba(220,220,220,1)",
-        pointColor: "rgba(220,220,220,1)",
+        fillColor: "rgba(255, 0, 102, 0.2)",
+        strokeColor: "rgba(255, 0, 102, 1)",
+        pointColor: "rgba(255, 0, 102, 1)",
         pointStrokeColor: "#fff",
         pointHighlightFill: "#fff",
-        pointHighlightStroke: "rgba(220,220,220,1)",
+        pointHighlightStroke: "rgba(255, 0, 102, 1)"
       };
       
       var bar_config = {
-        fillColor: "rgba(220,220,220,0.5)",
-        strokeColor: "rgba(220,220,220,0.8)",
-        highlightFill: "rgba(220,220,220,0.75)",
-        highlightStroke: "rgba(220,220,220,1)"
+        fillColor: "rgba(255, 0, 102, 0.2)",
+        strokeColor: "rgba(255, 0, 102, 0.8)",
+        highlightFill: "rgba(255, 0, 102, 1)",
+        highlightStroke: "rgba(255, 0, 102, 1)"
       };
       
       // extend jQuery
@@ -93,6 +138,17 @@
         $main.prepend($nav);
       })(jQuery);
       
+
+      // back to top
+      var $backtop = $('#backtop').hide();
+      $(window).on('scroll', function () {
+        var scrollTop = $(window).scrollTop();
+        if (scrollTop > 50) {
+            $backtop.show();
+        } else {
+            $backtop.hide();
+        }
+      });
     </script>
     
     <% bmfl = BookmarkFile.all.order(name: :asc)%>
