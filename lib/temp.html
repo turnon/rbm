@@ -34,7 +34,7 @@
       </div>
       
       <div id='months'>
-         <select id='select-year'></select></br>
+         year: <select id='select-year'></select></br>
       </div>
       
     </div>
@@ -54,6 +54,22 @@
       }
       
       var $main = $('#main');
+
+      var line_config = {
+        fillColor: "rgba(220,220,220,0.2)",
+        strokeColor: "rgba(220,220,220,1)",
+        pointColor: "rgba(220,220,220,1)",
+        pointStrokeColor: "#fff",
+        pointHighlightFill: "#fff",
+        pointHighlightStroke: "rgba(220,220,220,1)",
+      };
+      
+      var bar_config = {
+        fillColor: "rgba(220,220,220,0.5)",
+        strokeColor: "rgba(220,220,220,0.8)",
+        highlightFill: "rgba(220,220,220,0.75)",
+        highlightStroke: "rgba(220,220,220,1)"
+      };
       
       // extend jQuery
       (function($){
@@ -86,18 +102,7 @@
       var statistic = <%=bmfl.map { |f| f.category.links(:r).size } %>
       var data = {
           labels: period_labels ,
-          datasets: [
-              {
-                  label: "My First dataset",
-                  fillColor: "rgba(220,220,220,0.2)",
-                  strokeColor: "rgba(220,220,220,1)",
-                  pointColor: "rgba(220,220,220,1)",
-                  pointStrokeColor: "#fff",
-                  pointHighlightFill: "#fff",
-                  pointHighlightStroke: "rgba(220,220,220,1)",
-                  data: statistic
-              }
-          ]
+          datasets: [ $.extend({}, line_config, {data: statistic })]
       };
       
       $('#period canvas').remove();
@@ -133,16 +138,7 @@
       var statistic = <%=bmfl[-1].category.categories[0].categories(:r).map { |c| c.links.size }%>
       var data = {
           labels: labels ,
-          datasets: [
-              {
-                  label: "My First dataset",
-                  fillColor: "rgba(220,220,220,0.5)",
-                  strokeColor: "rgba(220,220,220,0.8)",
-                  highlightFill: "rgba(220,220,220,0.75)",
-                  highlightStroke: "rgba(220,220,220,1)",
-                  data: statistic
-              }
-          ]
+          datasets: [ $.extend({}, bar_config, {data: statistic })]
       };
       
 
@@ -178,16 +174,7 @@
       
       var data = {
           labels: labels ,
-          datasets: [
-              {
-                  label: "My First dataset",
-                  fillColor: "rgba(220,220,220,0.5)",
-                  strokeColor: "rgba(220,220,220,0.8)",
-                  highlightFill: "rgba(220,220,220,0.75)",
-                  highlightStroke: "rgba(220,220,220,1)",
-                  data: statistic
-              }
-          ]
+          datasets: [ $.extend({}, bar_config, {data: statistic })]
       };
       
       
