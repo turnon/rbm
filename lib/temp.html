@@ -87,7 +87,7 @@
     <script src="http://libs.baidu.com/jquery/2.0.0/jquery.min.js"></script>
     <script src="http://cdn.bootcss.com/Chart.js/1.0.2/Chart.js"></script>
     
-    <script>
+    <script data-name='mychart'>
       /*
        * basic setting
        */
@@ -98,6 +98,31 @@
         return h_scale_count * h_scale_wd / window.screen.width * 100
       }
       
+      function MyChart(where, _ydata){
+         var $chart = $('<canvas/>');
+         $(where).append($chart);
+         var wd = compute_width(_ydata.labels.length);
+         $chart.width(wd + '%');
+         if(wd < 100) $chart.height('500px');
+         var ctx = $chart[0].getContext("2d");
+         Chart.call(this, ctx);
+         this._ydata = _ydata;
+      }
+
+      MyChart.prototype = $.extend({}, Object.create(Chart.prototype), {
+          bar:function(opt){this.Bar(this._ydata,opt);},
+          line:function(opt){this.Line(this._ydata,opt);},
+          radar:function(opt){this.Radar(this._ydata,opt);},
+          polararea:function(opt){this.PolarArea(this._ydata,opt);},
+          pie:function(opt){this.Pie(this._ydata,opt);},
+          doughnut:function(opt){this.Doughnut(this._ydata,opt);}
+        }
+      );
+
+    </script>
+
+    <script>
+
       var $main = $('#main');
 
       var line_config = {
@@ -162,13 +187,7 @@
       };
       
       $('#period canvas').remove();
-      var $chart = $('<canvas/>');
-      $('#period').append($chart);
-      var wd = compute_width(period_labels.length)
-      $chart.width(wd + '%');
-      if(wd < 100) $chart.height('500px');
-      var ctx = $chart[0].getContext("2d");
-      var myNewChart = new Chart(ctx).Line(data, {bezierCurve: false, pointHitDetectionRadius : pointHitDetectionRadius});
+      new MyChart('#period', data).line({bezierCurve: false, pointHitDetectionRadius : pointHitDetectionRadius});
       
       $('#select-period-from').addOpts(period_labels);
       $('#select-period-to').addOpts(period_labels.reverse());
@@ -198,13 +217,7 @@
       };
       
 
-      var $chart = $('<canvas/>');
-      $('#categories').append($chart);
-      var wd = compute_width(labels.length);
-      $chart.width(wd + '%');
-      if(wd < 100) $chart.height('500px');
-      var ctx = $chart[0].getContext("2d");
-      var myNewChart = new Chart(ctx).Bar(data);
+      new MyChart('#categories', data).bar();
       
     </script>
     
@@ -233,14 +246,7 @@
           datasets: [ $.extend({}, bar_config, {data: statistic })]
       };
       
-      
-      var $chart = $('<canvas/>');
-      $('#months').append($chart);
-      var wd = compute_width(labels.length);
-      $chart.width(wd + '%');
-      if(wd < 100) $chart.height('500px');
-      var ctx = $chart[0].getContext("2d");
-      var myNewChart = new Chart(ctx).Bar(data);
+      new MyChart('#months', data).bar();
       
     </script>
   </body>
