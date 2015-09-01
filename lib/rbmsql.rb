@@ -42,7 +42,9 @@ db_file = (
 
 SqliteConn.establish db_file
 
-# if bookmark file given ...
+# process bookmark files ...
+
+bmfs = []
 
 while not ARGV.empty?
 
@@ -70,9 +72,13 @@ while not ARGV.empty?
 
   end
 
-  bmf.save
+  bmfs << bmf
 
 end
+
+# persistent only when db file is specified 
+
+bmfs.each { |f| f.save } if options.empty? or options[:d]
 
 # after db linked and file processed
 

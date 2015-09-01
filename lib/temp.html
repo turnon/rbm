@@ -177,11 +177,11 @@
       });
     </script>
     
-    <% bmfl = BookmarkFile.all.order(name: :asc)%>
+    <% bmfs = BookmarkFile.all.order(name: :asc) if bmfs.empty? %>
     
     <script>
-      var period_labels = <%=bmfl.map { |f| f.name}%>
-      var statistic = <%=bmfl.map { |f| f.category.links(:r).size } %>
+      var period_labels = <%=bmfs.map { |f| f.name}%>
+      var statistic = <%=bmfs.map { |f| f.category.links(:r).size } %>
       var data = {
           labels: period_labels ,
           datasets: [ $.extend({}, line_config, {data: statistic })]
@@ -198,7 +198,7 @@
     
     <script>
       var categories_of_files = {
-        <% bmfl.each do |f| %>
+        <% bmfs.each do |f| %>
           <%= f.name %> : {
             lbs : <%= f.category.categories[0].categories(:r).map { |c| (c.path.map { |p| p.name }).join(' / ') }%> ,
             dt : <%= f.category.categories[0].categories(:r).map { |c| c.links.size }%>
@@ -210,8 +210,8 @@
       k.reverse();
       $('#select-file').addOpts(k);
       
-      var labels = <%=bmfl[-1].category.categories[0].categories(:r).map { |c| (c.path.map { |p| p.name }).join(' / ') }%>
-      var statistic = <%=bmfl[-1].category.categories[0].categories(:r).map { |c| c.links.size }%>
+      var labels = <%=bmfs[-1].category.categories[0].categories(:r).map { |c| (c.path.map { |p| p.name }).join(' / ') }%>
+      var statistic = <%=bmfs[-1].category.categories[0].categories(:r).map { |c| c.links.size }%>
       var data = {
           labels: labels ,
           datasets: [ $.extend({}, bar_config, {data: statistic })]
@@ -226,7 +226,7 @@
       
       
       <% months_hash = Hash.new(0) %>
-      <% months_arr = bmfl[-1].category.links(:r).map { |l| l.add.year.to_s + '/' + l.add.month.to_s.sub(/^(\d)$/,'0\1') } %>
+      <% months_arr = bmfs[-1].category.links(:r).map { |l| l.add.year.to_s + '/' + l.add.month.to_s.sub(/^(\d)$/,'0\1') } %>
       <% months_arr.each { |m| months_hash[m] = months_hash[m] + 1 } %>
       <% months_sort_arr = months_hash.sort %>
       
