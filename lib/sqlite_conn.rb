@@ -2,16 +2,41 @@ require 'rubygems'
 require 'active_record'
 
 class SqliteConn
-  def self.establish(path)
-    check_db path
-    ActiveRecord::Base.establish_connection(:adapter  => 'sqlite3', :database => path)
+
+  class << self
+
+    def establish(path)
+      File.exists?(path) || File.new(path, 'w').close
+      ActiveRecord::Base.establish_connection(:adapter  => 'sqlite3', :database => path)
+      
+      puts File.size(path)
+      File.size(path).zero? && create_db
+    end
+
+    def create_db
+      ActiveRecord::Schema.define do
+        create_table :bookmark_files do |t|
+          t.string :name
+        end
+
+        create_table :categories do |t|
+          t.string :name
+          t.datetime :add
+          t.datetime :last_modified
+          t.belongs_to :category, index: true
+          t.belongs_to :bookmark_file, index: true
+        end
+
+        create_table :links do |t|
+          t.string :name
+          t.datetime :add
+          t.string :href
+          t.belongs_to :category, index: true, foreign_key: true
+        end
+      end
+    end
+
   end
 
-  def self.check_db(path)
-    File.exists?(path) || File.new(path, 'w').close
-    if File.size(path).zero?
-      `sqlite3 #{path} 'CREATE TABLE "bookmark_files" ("id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, "name" varchar);CREATE TABLE "categories" ("id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, "name" varchar, "add" datetime, "last_modified" datetime, "category_id" integer, "bookmark_file_id" integer); CREATE TABLE "links" ("id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, "name" varchar, "add" datetime, "href" varchar, "category_id" integer); CREATE INDEX "index_categories_on_bookmark_file_id" ON "categories" ("bookmark_file_id"); CREATE INDEX "index_categories_on_category_id" ON "categories" ("category_id"); CREATE INDEX "index_links_on_category_id" ON "links" ("category_id");'`
-    end
-  end
 end
 
