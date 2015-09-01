@@ -95,7 +95,8 @@
       var pointHitDetectionRadius = h_scale_wd / 2 * 0.9;
       
       function compute_width(h_scale_count){
-        return h_scale_count * h_scale_wd / window.screen.width * 100
+        var wd = h_scale_count < 5 ? h_scale_wd + 10 : h_scale_wd;
+        return h_scale_count * wd / window.screen.width * 100;
       }
       
       function MyChart(where, _ydata){
