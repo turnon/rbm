@@ -8,8 +8,6 @@ class SqliteConn
     def establish(path)
       File.exists?(path) || File.new(path, 'w').close
       ActiveRecord::Base.establish_connection(:adapter  => 'sqlite3', :database => path)
-      
-      puts File.size(path)
       File.size(path).zero? && create_db
     end
 
