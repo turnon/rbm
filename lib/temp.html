@@ -177,11 +177,16 @@
       });
     </script>
     
-    <% bmfs = BookmarkFile.all.order(name: :asc) if bmfs.empty? %>
+    <% bmfs = BookmarkFile.all.to_a if bmfs.empty? %>
     
     <script>
-      var period_labels = <%=bmfs.map { |f| f.name}%>
-      var statistic = <%=bmfs.map { |f| f.category.links(:r).size } %>
+      <% months = {} %>
+      <% bmfs.sort{ |a,b| b.name <=> a.name }.each { |f,m| m = f.name.sub(/\d\d$/,''); months[m] = f.category.links(:r).size unless months[m]  } %>
+      <% m_labels = []; m_data = [] %>
+      <% months.each { |m| m_labels.unshift m[0] ; m_data.unshift m[1] } %>
+
+      var period_labels = <%= m_labels %>
+      var statistic = <%= m_data %>
       var data = {
           labels: period_labels ,
           datasets: [ $.extend({}, line_config, {data: statistic })]
