@@ -36,8 +36,8 @@
         margin-bottom: 50px;
       }
 
-      #main select {
-        margin: 50px 0 50px 0;
+      #main p {
+        padding: 50px 0 50px 0;
       }
 
       #main > div:nth-child(odd) {
@@ -69,17 +69,21 @@
     <div id='main'>
     
       <div id='period'>
-        period form: <select id='select-period-from'></select> to: <select id='select-period-to'></select> <input type='button' value='generate'/></br>
+	<p>period form: <select id='select-period-from'></select> to: <select id='select-period-to'></select> <input type='button' value='generate'/></p>
       </div>
       
       <div id='categories'>
-        file: <select id='select-file'></select></br>
+	<p>file: <select id='select-file'></select></p>
       </div>
       
       <div id='months'>
-         year: <select id='select-year'></select></br>
+        <p>year: <select id='select-year'></select></p>
       </div>
       
+      <div id='read'>
+	<p>read and not read</p>
+      </div>
+
     </div>
     <footer></footer>
     <div id='backtop'><a href='#'>back to top</a></div>
@@ -102,7 +106,7 @@
       function MyChart(where, _ydata){
          var $chart = $('<canvas/>');
          $(where).append($chart);
-         var wd = compute_width(_ydata.labels.length);
+         var wd = _ydata.labels && compute_width(_ydata.labels.length) || 30 ;
          $chart.width(wd + '%');
          if(wd < 100) $chart.height('500px');
          var ctx = $chart[0].getContext("2d");
@@ -254,6 +258,39 @@
       
       new MyChart('#months', data).bar();
       
+    </script>
+
+    <script>
+      <% all_links = {} %>
+      <% remain_links = {} %>
+      <% bmfs.each { |f| f.category.links(:r).each { |l| all_links[l.href] = f.name } }  %>
+      <% last_file_name = bmfs[-1].name %>
+      <% read_count = not_read_count = 0 %>
+      <% all_links.each_value do |v| %>
+      <%   if v == last_file_name %>
+      <%     not_read_count += 1 %>
+      <%   else %>
+      <%     read_count += 1 %>
+      <%   end %>
+      <% end %>
+
+      var data = [
+        {
+         value: <%= read_count %>,
+         color: "rgba(255, 0, 102, 0.2)",
+         highlight: "rgba(255, 0, 102, 1)",
+         label: "read"
+        },
+        {
+         value: <%= not_read_count %>,
+         color:"rgba(220,220,220,0.5)",
+         highlight: "rgba(220,220,220,1)",
+         label: "not read"
+        }
+      ];
+
+      new MyChart('#read', data).pie();
+
     </script>
   </body>
 </html>
