@@ -110,13 +110,13 @@
          this._ydata = _ydata;
       }
 
-      MyChart.prototype = $.extend({}, Object.create(Chart.prototype), {
-          bar:function(opt){this.Bar(this._ydata,opt);},
-          line:function(opt){this.Line(this._ydata,opt);},
-          radar:function(opt){this.Radar(this._ydata,opt);},
-          polararea:function(opt){this.PolarArea(this._ydata,opt);},
-          pie:function(opt){this.Pie(this._ydata,opt);},
-          doughnut:function(opt){this.Doughnut(this._ydata,opt);}
+      MyChart.prototype = $.extend(Object.create(Chart.prototype), {
+          bar:function(opt){return this.Bar(this._ydata,opt);},
+          line:function(opt){return this.Line(this._ydata,opt);},
+          radar:function(opt){return this.Radar(this._ydata,opt);},
+          polararea:function(opt){return this.PolarArea(this._ydata,opt);},
+          pie:function(opt){return this.Pie(this._ydata,opt);},
+          doughnut:function(opt){return this.Doughnut(this._ydata,opt);}
         }
       );
 
