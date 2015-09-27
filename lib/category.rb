@@ -5,7 +5,7 @@ class Category < ActiveRecord::Base
   has_many :links, dependent: :destroy
 
   def self.match?(str)
-    /\<H\d.*\>(.*)\<\/H\d\>/.match str
+    /\<H3.*\>(.*)\<\/H3\>/.match str and not /PERSONAL_TOOLBAR_FOLDER/.match str
   end
 
   def self.match_ending?(str)

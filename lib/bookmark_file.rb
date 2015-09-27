@@ -1,5 +1,5 @@
 class BookmarkFile < ActiveRecord::Base
-  has_one :category, dependent: :destroy
+  has_many :categories, dependent: :destroy
 
   def getin(d)
     @st ||= []
