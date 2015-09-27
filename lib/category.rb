@@ -4,6 +4,8 @@ class Category < ActiveRecord::Base
   belongs_to :category
   has_many :links, dependent: :destroy
 
+  can_recurse :categories
+
   def self.match?(str)
     /\<H3.*\>(.*)\<\/H3\>/.match str and not /PERSONAL_TOOLBAR_FOLDER/.match str
   end
@@ -38,28 +40,9 @@ class Category < ActiveRecord::Base
     p
   end
 
-  alias_method :cs, :categories
-
-  def categories(*opt)
-    opt[0] == :r ? categories_recurse : cs
-  end
-
-  def categories_recurse
-    cs = []
-    r = -> c { cs << c ; subcs = c.categories ; subcs.each &r unless subcs.empty? }
-    categories.each &r
-    cs
-  end
-
-  alias_method :ls, :links
-
-  def links(*opt)
-    opt[0] == :r ? links_recurse : ls
-  end
-
   def links_recurse
-    arr = ls.to_a
-    categories.each { |c| arr.concat c.links(:r) }
+    arr = links.to_a
+    categories_recurse.each { |c| arr.concat c.links.to_a }
     arr
   end
 

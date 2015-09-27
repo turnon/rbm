@@ -4,6 +4,7 @@ require 'optparse'
 require 'erb'
 
 require_relative 'sqlite_conn'
+require_relative 'recurse_support'
 require_relative 'bookmark_file'
 require_relative 'category'
 require_relative 'link'

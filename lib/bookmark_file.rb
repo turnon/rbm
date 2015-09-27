@@ -1,6 +1,8 @@
 class BookmarkFile < ActiveRecord::Base
   has_many :categories, dependent: :destroy
 
+  can_recurse :categories
+
   def getin(d)
     @st ||= []
     @st << d
