@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <style>
+      html, body {
+        margin: 0;
+        padding: 0;
+        text-align: center;
+      }
+
+      #main {
+        margin: auto;
+      }
+      
+      nav {
+        padding: 20px 0 20px 0;
+        font-size: 2em;
+        color: white;
+        background-color: black ;
+      }
+
+      a {
+        text-decoration: none;
+      }
+
+      a:visited {
+        color: white;
+      }
+
+      nav a + a:before {
+        content: " / ";
+      }
+
+      #main > div {
+        margin-bottom: 50px;
+      }
+
+      #main p {
+        padding: 50px 0 50px 0;
+      }
+
+      #main > div:nth-child(odd) {
+        background-color: WhiteSmoke ;
+      }
+
+      footer {
+         height: 200px;
+      }
+
+      #backtop {
+          position: fixed;
+          height: 25px;
+          background-color: DimGray ;
+          bottom: 0px;
+          left: 0px;
+          right: 0px;
+          margin-bottom: 0px;
+          color: white;
+      }
+
+      #backtop a {
+        display: block;
+      }
+
+    </style>
+  </head>
+  <body>
+    <div id='main'>
+    
+      <div id='period'>
+	<p>period form: <select id='select-period-from'></select> to: <select id='select-period-to'></select> <input type='button' value='generate'/></p>
+      </div>
+      
+      <div id='categories'>
+	<p>file: <select id='select-file'></select></p>
+      </div>
+      
+      <div id='months'>
+        <p>year: <select id='select-year'></select></p>
+      </div>
+      
+      <div id='read'>
+	<p>read and not read</p>
+      </div>
+
+    </div>
+    <footer></footer>
+    <div id='backtop'><a href='#'>back to top</a></div>
+
+    <script src="http://libs.baidu.com/jquery/2.0.0/jquery.min.js"></script>
+    <script src="http://cdn.bootcss.com/Chart.js/1.0.2/Chart.js"></script>
+    
+    <script data-name='mychart'>
+      /*
+       * basic setting
+       */
+      var h_scale_wd = 25;
+      var pointHitDetectionRadius = h_scale_wd / 2 * 0.9;
+      
+      function compute_width(h_scale_count){
+        var wd = h_scale_count < 5 ? h_scale_wd + 10 : h_scale_wd;
+        return h_scale_count * wd / window.screen.width * 100;
+      }
+      
+      function MyChart(where, _ydata){
+         var $chart = $('<canvas/>');
+         $(where).append($chart);
+         var wd = _ydata.labels && compute_width(_ydata.labels.length) || 30 ;
+         $chart.width(wd + '%');
+         if(wd < 100) $chart.height('500px');
+         var ctx = $chart[0].getContext("2d");
+         Chart.call(this, ctx);
+         this._ydata = _ydata;
+      }
+
+      MyChart.prototype = $.extend(Object.create(Chart.prototype), {
+          bar:function(opt){return this.Bar(this._ydata,opt);},
+          line:function(opt){return this.Line(this._ydata,opt);},
+          radar:function(opt){return this.Radar(this._ydata,opt);},
+          polararea:function(opt){return this.PolarArea(this._ydata,opt);},
+          pie:function(opt){return this.Pie(this._ydata,opt);},
+          doughnut:function(opt){return this.Doughnut(this._ydata,opt);}
+        }
+      );
+
+    </script>
+
+    <script>
+
+      var $main = $('#main');
+
+      var line_config = {
+        fillColor: "rgba(255, 0, 102, 0.2)",
+        strokeColor: "rgba(255, 0, 102, 1)",
+        pointColor: "rgba(255, 0, 102, 1)",
+        pointStrokeColor: "#fff",
+        pointHighlightFill: "#fff",
+        pointHighlightStroke: "rgba(255, 0, 102, 1)"
+      };
+      
+      var bar_config = {
+        fillColor: "rgba(255, 0, 102, 0.2)",
+        strokeColor: "rgba(255, 0, 102, 0.8)",
+        highlightFill: "rgba(255, 0, 102, 1)",
+        highlightStroke: "rgba(255, 0, 102, 1)"
+      };
+      
+      // extend jQuery
+      (function($){
+        $.fn.extend({
+          addOpts : function(items_list){
+            var $that = this;
+            items_list.forEach(function(i){
+              $that.append('<option value ="' + i +'">' + i +'</option>');
+            });
+            return $that;            
+          }
+        });
+      })(jQuery);
+      
+      // init nav
+      (function($){
+        var $nav = $('<nav/>');
+        $('#main > div').each(function(){
+          $nav.append('<a href="#' + this.id +'">' + this.id +'</a>')
+        });
+        $main.prepend($nav);
+      })(jQuery);
+      
+
+      // back to top
+      var $backtop = $('#backtop').hide();
+      $(window).on('scroll', function () {
+        var scrollTop = $(window).scrollTop();
+        if (scrollTop > 50) {
+            $backtop.show();
+        } else {
+            $backtop.hide();
+        }
+      });
+    </script>
+    
+    <% bmfs = BookmarkFile.all.to_a if bmfs.empty? %>
+    
+    <script>
+      <% months = {} %>
+      <% bmfs.sort{ |a,b| b.name <=> a.name }.each { |f,m| m = f.name.sub(/\d\d$/,''); months[m] = f.category.links(:r).size unless months[m]  } %>
+      <% m_labels = []; m_data = [] %>
+      <% months.each { |m| m_labels.unshift m[0] ; m_data.unshift m[1] } %>
+
+      var period_labels = <%= m_labels %>
+      var statistic = <%= m_data %>
+      var data = {
+          labels: period_labels ,
+          datasets: [ $.extend({}, line_config, {data: statistic })]
+      };
+      
+      $('#period canvas').remove();
+      new MyChart('#period', data).line({bezierCurve: false, pointHitDetectionRadius : pointHitDetectionRadius});
+      
+      $('#select-period-from').addOpts(period_labels);
+      $('#select-period-to').addOpts(period_labels.reverse());
+      period_labels.reverse();
+      
+    </script>
+    
+    <script>
+      var categories_of_files = {
+        <% bmfs.each do |f| %>
+          <%= f.name %> : {
+            lbs : <%= f.category.categories[0].categories(:r).map { |c| (c.path.map { |p| p.name }).join(' / ') }%> ,
+            dt : <%= f.category.categories[0].categories(:r).map { |c| c.links.size }%>
+           },
+        <% end %>
+      };
+      
+      var k = Object.keys(categories_of_files);
+      k.reverse();
+      $('#select-file').addOpts(k);
+      
+      var labels = <%=bmfs[-1].category.categories[0].categories(:r).map { |c| (c.path.map { |p| p.name }).join(' / ') }%>
+      var statistic = <%=bmfs[-1].category.categories[0].categories(:r).map { |c| c.links.size }%>
+      var data = {
+          labels: labels ,
+          datasets: [ $.extend({}, bar_config, {data: statistic })]
+      };
+      
+
+      new MyChart('#categories', data).bar();
+      
+    </script>
+    
+    <script>      
+      
+      
+      <% months_hash = Hash.new(0) %>
+      <% months_arr = bmfs[-1].category.links(:r).map { |l| l.add.year.to_s + '/' + l.add.month.to_s.sub(/^(\d)$/,'0\1') } %>
+      <% months_arr.each { |m| months_hash[m] = months_hash[m] + 1 } %>
+      <% months_sort_arr = months_hash.sort %>
+      
+      var labels = <%= months_sort_arr.map { |e| e[0] } %>;
+      var statistic = <%= months_sort_arr.map { |e| e[1] } %>;
+      
+      var select_m = {};      
+      labels.forEach(function(e){
+        select_m[e.replace(/\/.*$/,'')] = null;
+      });
+      
+      var k = Object.keys(select_m);
+      k.reverse();
+      $('#select-year').addOpts(k);      
+      
+      var data = {
+          labels: labels ,
+          datasets: [ $.extend({}, bar_config, {data: statistic })]
+      };
+      
+      new MyChart('#months', data).bar();
+      
+    </script>
+
+    <script>
+      <% all_links = {} %>
+      <% remain_links = {} %>
+      <% bmfs.each { |f| f.category.links(:r).each { |l| all_links[l.href] = f.name } }  %>
+      <% last_file_name = bmfs[-1].name %>
+      <% read_count = not_read_count = 0 %>
+      <% all_links.each_value do |v| %>
+      <%   if v == last_file_name %>
+      <%     not_read_count += 1 %>
+      <%   else %>
+      <%     read_count += 1 %>
+      <%   end %>
+      <% end %>
+
+      var data = [
+        {
+         value: <%= read_count %>,
+         color: "rgba(255, 0, 102, 0.2)",
+         highlight: "rgba(255, 0, 102, 1)",
+         label: "read"
+        },
+        {
+         value: <%= not_read_count %>,
+         color:"rgba(220,220,220,0.5)",
+         highlight: "rgba(220,220,220,1)",
+         label: "not read"
+        }
+      ];
+
+      new MyChart('#read', data).pie();
+
+    </script>
+  </body>
+</html>
