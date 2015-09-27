@@ -13,15 +13,18 @@ require_relative 'link'
 options = {}
 
 option_parser = OptionParser.new do |opts|
-  opts.on("-i","--interactive") do
+
+  opts.banner = "Usage: rbmsql [options].. FILE...\n\nSave chrome bookmark into sqlite. Or interact with the bookmark using ActiveRecord. Or output a statistic report for it. If no option is given, the last file should be sqlite file\n\n"
+
+  opts.on("-i","--interactive", 'Open pry after all files read') do
     options[:i] = true
   end
 
-  opts.on("-d DB") do |db|
+  opts.on("-d DB", 'Specify sqlite file path. If no -d but -i, sqlite file will be created somewhere like /tmp') do |db|
     options[:d] = db
   end
   
-  opts.on("-o HTML") do |html|
+  opts.on("-o HTML", 'Specify report file path. Statistic report will be outputed there') do |html|
     options[:o] = html
   end
 end
