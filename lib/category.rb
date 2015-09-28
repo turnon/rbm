@@ -7,7 +7,7 @@ class Category < ActiveRecord::Base
   can_recurse :categories
 
   def self.match?(str)
-    /\<H3.*\>(.*)\<\/H3\>/.match str and not /PERSONAL_TOOLBAR_FOLDER/.match str
+    /\<H3.*\>(.*)\<\/H3\>/.match str
   end
 
   def self.match_ending?(str)
@@ -21,8 +21,12 @@ class Category < ActiveRecord::Base
     md = /LAST_MODIFIED\=\"(\d+)\"/.match str
     self.last_modified = md ? Time.at(md[1].to_i) : nil    
     
-    md = /(\"|1)\>(.*)\<\/H/.match str
-    self.name = md ? md[2] : nil
+    if /PERSONAL_TOOLBAR_FOLDER/ =~ str
+        self.name = '/'
+    else
+        md = /(\"|1)\>(.*)\<\/H/.match str
+        self.name = md ? md[2] : nil
+    end
   end
 
   alias_method :bmf, :bookmark_file
