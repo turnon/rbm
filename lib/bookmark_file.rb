@@ -24,12 +24,12 @@ class BookmarkFile < ActiveRecord::Base
       alias_method :o_categories, :categories unless instance_methods.any? { |m| m == :o_categories }
       @@p = b.sub(/^\//,'').split(/\//)
       define_method :categories do
-        @start_point = self.o_categories[0]
+        stp = self.o_categories
         @@p.each do |b_name|
-          @start_point = @start_point.categories.select{ |c| c.name == b_name }[0]
-          break if @start_point.nil?
+          stp = stp[0].categories.select{ |c| c.name == b_name }
+          break if stp.empty?
         end
-        @start_point
+        @start_point = stp
       end
     end
 
