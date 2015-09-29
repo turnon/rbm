@@ -18,13 +18,15 @@ class BookmarkFile < ActiveRecord::Base
     @st.pop
   end
 
+  @@branch = nil
+
   class << self
 
     def branch=(b)
       alias_method :o_categories, :categories unless instance_methods.any? { |m| m == :o_categories }
       b = b.sub(/^\//,'').split(/\//)
 
-      return if class_variable_defined? :@@branch and @@branch == b
+      return if @@branch == b
 
       @@branch = b
       @@branch_changed = true
