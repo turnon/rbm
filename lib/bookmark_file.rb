@@ -22,10 +22,12 @@ class BookmarkFile < ActiveRecord::Base
 
     def branch=(b)
       alias_method :o_categories, :categories unless instance_methods.any? { |m| m == :o_categories }
-      @@p = b.sub(/^\//,'').split(/\//)
+      b = b.sub(/^\//,'').split(/\//)
+      return if class_variable_defined? :@@branch and @@branch == b
+      @@branch = b
       define_method :categories do
         stp = self.o_categories
-        @@p.each do |b_name|
+        @@branch.each do |b_name|
           stp = stp[0].categories.select{ |c| c.name == b_name }
           break if stp.empty?
         end
@@ -34,7 +36,7 @@ class BookmarkFile < ActiveRecord::Base
     end
 
     def branch
-      @@p
+      @@branch
     end
 
   end
